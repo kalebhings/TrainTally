@@ -1,0 +1,153 @@
+# ===========================
+# macOS System Files
+# ===========================
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# ===========================
+# iOS / Xcode
+# ===========================
+
+## Build generated
+build/
+DerivedData/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+## User settings
+xcuserdata/
+*.xcuserstate
+*.xcuserdatad
+
+## Compatibility with Xcode 8 and earlier
+*.xcscmblueprint
+*.xccheckout
+
+## Compatibility with Xcode 3 and earlier
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+
+## Xcode Patch
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/project.xcworkspace/
+*.xcworkspace/*
+!*.xcworkspace/contents.xcworkspacedata
+!*.xcworkspace/xcshareddata/
+/*.gcno
+
+## Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# ===========================
+# Swift Package Manager
+# ===========================
+.swiftpm/
+.build/
+Packages/
+Package.pins
+Package.resolved
+*.xcodeproj/
+.netrc
+
+## VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+.history/
+*.vsix
+
+## API Keys and Secrets
+.env
+.env.*
+!.env.example
+secrets/
+secret.*
+*secret*
+*secrets*
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+
+# ===========================
+# SwiftData & Databases
+# ===========================
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.db
+*.db-shm
+*.db-wal
+
+# ===========================
+# App Specific - TrainTally
+# ===========================
+
+## Local test data
+TestData/
+test-games.json
+sample-data/
+
+## Profanity/content filters
+profanity-filter.json
+content-filter.json
+bad-words.json
+
+## Local configuration overrides
+Config/local.json
+Config/secrets.json
+config/local.json
+config/secrets.json
+
+## User data exports (privacy concern)
+UserData/
+*.userdata
+user-exports/
+exports/
+
+## Backend environment files
+backend/.env
+backend/.env.*
+backend/secrets/
+
+# ===========================
+# Temporary Files
+# ===========================
+*.tmp
+*.temp
+tmp/
+temp/
+*.log
+*.bak
+*.backup
