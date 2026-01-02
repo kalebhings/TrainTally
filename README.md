@@ -9,10 +9,10 @@ A mobile score-tracking app for Ticket to Ride board games with cloud-synced lea
 
 ## Screenshots
 <p align="center">
-  <img src="docs/images/home-screen.png" width="200" alt="Home Screen">
+  <img src="docs/images/home-screen.PNG" width="200" alt="Home Screen">
   <img src="docs/images/setup-screen.PNG" width="200" alt="Setup Screen">
-  <img src="docs/images/scoring-screen.png" width="200" alt="Scoring Screen">
-  <img src="docs/images/game-summary.png" width="200" alt="Game Summary">
+  <img src="docs/images/scoring-screen.PNG" width="200" alt="Scoring Screen">
+  <img src="docs/images/game-summary.PNG" width="200" alt="Game Summary">
   <img src="docs/images/history-screen.PNG" width="200" alt="Game History">
 </p>
 
@@ -244,7 +244,7 @@ This is a portfolio project, but suggestions and feedback are welcome! Feel free
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is proprietary software. You may view the source code for educational purposes, but commercial use is prohibited. See the [LICENSE](LICENSE) file for details.
 
 ---
 
