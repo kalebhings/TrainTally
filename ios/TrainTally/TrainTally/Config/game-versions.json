@@ -1,0 +1,133 @@
+{
+  "versions": [
+    {
+      "id": "usa_base",
+      "displayName": "USA (Base Game)",
+      "minPlayers": 2,
+      "maxPlayers": 5,
+      "trainCarsPerPlayer": 45,
+      "stationsPerPlayer": null,
+      "playerColors": ["red", "blue", "green", "yellow", "black"],
+      "routeScoring": [
+        {"length": 1, "points": 1},
+        {"length": 2, "points": 2},
+        {"length": 3, "points": 4},
+        {"length": 4, "points": 7},
+        {"length": 5, "points": 10},
+        {"length": 6, "points": 15}
+      ],
+      "features": {
+        "hasStations": false,
+        "hasMeeples": false,
+        "hasFerries": false,
+        "hasShips": false
+      },
+      "bonuses": [
+        {
+          "id": "longest_route",
+          "displayName": "Longest Route",
+          "points": 10,
+          "description": "Longest continuous path of trains",
+          "isExclusive": true,
+          "isPerItem": false,
+          "maxCount": null
+        },
+        {
+          "id": "globetrotter",
+          "displayName": "Globetrotter",
+          "points": 15,
+          "description": "Most completed destination tickets",
+          "isExclusive": true,
+          "isPerItem": false,
+          "maxCount": null
+        }
+      ],
+      "meepleConfig": null
+    },
+    {
+      "id": "germany",
+      "displayName": "Germany",
+      "minPlayers": 2,
+      "maxPlayers": 5,
+      "trainCarsPerPlayer": 45,
+      "stationsPerPlayer": null,
+      "playerColors": ["red", "blue", "green", "yellow", "black", "purple"],
+      "routeScoring": [
+          {"length": 1, "points": 1},
+          {"length": 2, "points": 2},
+          {"length": 3, "points": 4},
+          {"length": 4, "points": 7},
+          {"length": 5, "points": 10},
+          {"length": 6, "points": 15},
+          {"length": 7, "points": 18}
+      ],
+      "features": {
+        "hasStations": false,
+        "hasMeeples": true,
+        "hasFerries": false,
+        "hasShips": false
+      },
+      "meepleConfig": {
+        "colors": ["yellow", "blue", "pink", "orange", "white", "black"],
+        "majorityPoints": 20,
+        "secondPlacePoints": 10
+      },
+      "bonuses": [
+        {
+          "id": "longest_route",
+          "displayName": "Longest Route",
+          "points": 10,
+          "description": "Longest continuous path",
+          "isExclusive": true,
+          "isPerItem": false,
+          "maxCount": null
+        },
+        {
+          "id": "globetrotter",
+          "displayName": "Globetrotter",
+          "points": 15,
+          "description": "Most completed destination tickets",
+          "isExclusive": true,
+          "isPerItem": false,
+          "maxCount": null
+        }
+      ]
+    },
+    {
+      "id": "old_west",
+      "displayName": "Old West",
+      "minPlayers": 2,
+      "maxPlayers": 6,
+      "trainCarsPerPlayer": 40,
+      "stationsPerPlayer": null,
+      "playerColors": ["red", "blue", "green", "yellow", "black", "white"],
+      "routeScoring": [
+          {"length": 1, "points": 1},
+          {"length": 2, "points": 2},
+          {"length": 3, "points": 4},
+          {"length": 4, "points": 7},
+          {"length": 5, "points": 10},
+          {"length": 6, "points": 15},
+          {"length": 7, "points": 18}
+      ],
+      "features": {
+        "hasStations": false,
+        "hasMeeples": false,
+        "hasFerries": false,
+        "hasShips": false
+      },
+      "bonuses": [
+        {
+          "id": "longest_route",
+          "displayName": "Longest Route",
+          "points": 10,
+          "description": "Longest continuous path",
+          "isExclusive": true,
+          "isPerItem": false,
+          "maxCount": null
+        }
+      ],
+      "meepleConfig": null
+    }
+  ]
+}
