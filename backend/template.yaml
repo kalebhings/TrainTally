@@ -1,0 +1,498 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: TrainTally Backend - Serverless score tracking for Ticket to Ride
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Timeout: 30
+    MemorySize: 256
+    Environment:
+      Variables:
+        GAMES_TABLE: !Ref GamesTable
+        GROUPS_TABLE: !Ref GroupsTable
+        LEADERBOARDS_TABLE: !Ref LeaderboardsTable
+        COGNITO_USER_POOL_ID: !Ref UserPool
+        REGION: !Ref AWS::Region
+    Layers:
+      - !Ref SharedLayer
+  Api:
+    Cors:
+      AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+      AllowHeaders: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+      AllowOrigin: "'*'"  # Restrict to your domain in production
+      MaxAge: "'3600'"
+
+Parameters:
+  Stage:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - prod
+    Description: Deployment stage
+
+Resources:
+  # ============================================
+  # Cognito User Pool for Authentication
+  # ============================================
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub TrainTally-${Stage}
+      UsernameAttributes:
+        - email
+      AutoVerifiedAttributes:
+        - email
+      Schema:
+        - Name: email
+          Required: true
+          Mutable: false
+        - Name: name
+          Required: false
+          Mutable: true
+        - Name: family_name
+          Required: false
+          Mutable: true
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireUppercase: true
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: false
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+      UserPoolAddOns:
+        AdvancedSecurityMode: AUDIT  # Free tier: Audit mode only
+      EmailConfiguration:
+        EmailSendingAccount: COGNITO_DEFAULT  # Free tier
+      UserAttributeUpdateSettings:
+        AttributesRequireVerificationBeforeUpdate:
+          - email
+      DeletionProtection: INACTIVE  # Set to ACTIVE in production
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: !Sub TrainTally-iOS-${Stage}
+      UserPoolId: !Ref UserPool
+      ExplicitAuthFlows:
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_ADMIN_USER_PASSWORD_AUTH  # For testing/admin operations
+      PreventUserExistenceErrors: ENABLED
+      RefreshTokenValidity: 30  # days
+      AccessTokenValidity: 60  # minutes
+      IdTokenValidity: 60  # minutes
+      TokenValidityUnits:
+        RefreshToken: days
+        AccessToken: minutes
+        IdToken: minutes
+      # ReadAttributes and WriteAttributes removed - will use all attributes from UserPool schema by default
+
+  # ============================================
+  # DynamoDB Tables
+  # ============================================
+  GamesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub TrainTally-Games-${Stage}
+      BillingMode: PAY_PER_REQUEST  # Free tier friendly
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: gameId
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: N
+        - AttributeName: gameVersion
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+        - AttributeName: gameId
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: TimestampIndex
+          KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+            - AttributeName: timestamp
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: GameVersionIndex
+          KeySchema:
+            - AttributeName: gameVersion
+              KeyType: HASH
+            - AttributeName: timestamp
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES  # For leaderboard updates
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true  # Encryption at rest
+      Tags:
+        - Key: Project
+          Value: TrainTally
+        - Key: Stage
+          Value: !Ref Stage
+
+  GroupsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub TrainTally-Groups-${Stage}
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: groupId
+          AttributeType: S
+        - AttributeName: inviteCode
+          AttributeType: S
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: groupId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: InviteCodeIndex
+          KeySchema:
+            - AttributeName: inviteCode
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+        - IndexName: UserGroupsIndex
+          KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+            - AttributeName: groupId
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      Tags:
+        - Key: Project
+          Value: TrainTally
+        - Key: Stage
+          Value: !Ref Stage
+
+  LeaderboardsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub TrainTally-Leaderboards-${Stage}
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: leaderboardType  # "global" or "group:{groupId}"
+          AttributeType: S
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: score
+          AttributeType: N
+      KeySchema:
+        - AttributeName: leaderboardType
+          KeyType: HASH
+        - AttributeName: userId
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: ScoreIndex
+          KeySchema:
+            - AttributeName: leaderboardType
+              KeyType: HASH
+            - AttributeName: score
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      Tags:
+        - Key: Project
+          Value: TrainTally
+        - Key: Stage
+          Value: !Ref Stage
+
+  # ============================================
+  # Lambda Layer for Shared Code
+  # ============================================
+  SharedLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: !Sub TrainTally-Shared-${Stage}
+      Description: Shared utilities and dependencies
+      ContentUri: ./shared
+      CompatibleRuntimes:
+        - python3.12
+    Metadata:
+      BuildMethod: python3.12
+
+  # ============================================
+  # API Gateway
+  # ============================================
+  TrainTallyApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub TrainTally-API-${Stage}
+      StageName: !Ref Stage
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !GetAtt UserPool.Arn
+        AddDefaultAuthorizerToCorsPreflight: false
+      MethodSettings:             
+        - ResourcePath: "/*"      
+          HttpMethod: "*"         
+          ThrottlingBurstLimit: 100   
+          ThrottlingRateLimit: 50     
+      TracingEnabled: true
+      Tags:
+        Project: TrainTally
+        Stage: !Ref Stage
+
+  # ============================================
+  # Lambda Functions - Games
+  # ============================================
+  SubmitGameFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub TrainTally-SubmitGame-${Stage}
+      CodeUri: ./functions/games
+      Handler: submit_game.lambda_handler
+      Description: Submit a completed game to the database
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GamesTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LeaderboardsTable
+      Events:
+        SubmitGame:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TrainTallyApi
+            Path: /games
+            Method: POST
+
+  GetGameHistoryFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub TrainTally-GetGameHistory-${Stage}
+      CodeUri: ./functions/games
+      Handler: get_history.lambda_handler
+      Description: Get user's game history
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref GamesTable
+      Events:
+        GetHistory:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TrainTallyApi
+            Path: /games
+            Method: GET
+
+  # ============================================
+  # Lambda Functions - Leaderboards
+  # ============================================
+  GetGlobalLeaderboardFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub TrainTally-GetGlobalLeaderboard-${Stage}
+      CodeUri: ./functions/leaderboards
+      Handler: get_global.lambda_handler
+      Description: Get global leaderboards
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref LeaderboardsTable
+      Events:
+        GetGlobal:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TrainTallyApi
+            Path: /leaderboards/global
+            Method: GET
+
+  GetGroupLeaderboardFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub TrainTally-GetGroupLeaderboard-${Stage}
+      CodeUri: ./functions/leaderboards
+      Handler: get_group.lambda_handler
+      Description: Get group leaderboards
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref LeaderboardsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref GroupsTable
+      Events:
+        GetGroup:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TrainTallyApi
+            Path: /leaderboards/groups/{groupId}
+            Method: GET
+
+  # ============================================
+  # Lambda Functions - Groups
+  # ============================================
+  CreateGroupFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub TrainTally-CreateGroup-${Stage}
+      CodeUri: ./functions/groups
+      Handler: create_group.lambda_handler
+      Description: Create a family group
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
+      Events:
+        CreateGroup:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TrainTallyApi
+            Path: /groups
+            Method: POST
+
+  JoinGroupFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub TrainTally-JoinGroup-${Stage}
+      CodeUri: ./functions/groups
+      Handler: join_group.lambda_handler
+      Description: Join a group with invite code
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
+      Events:
+        JoinGroup:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TrainTallyApi
+            Path: /groups/{groupId}/join
+            Method: POST
+
+  ListGroupsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub TrainTally-ListGroups-${Stage}
+      CodeUri: ./functions/groups
+      Handler: list_groups.lambda_handler
+      Description: List user's groups
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref GroupsTable
+      Events:
+        ListGroups:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TrainTallyApi
+            Path: /groups
+            Method: GET
+
+  # ============================================
+  # DynamoDB Stream Processor for Leaderboards
+  # ============================================
+  LeaderboardUpdateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub TrainTally-LeaderboardUpdate-${Stage}
+      CodeUri: ./functions/leaderboards
+      Handler: update_leaderboards.lambda_handler
+      Description: Update leaderboards when new games are submitted
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LeaderboardsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref GroupsTable
+        - DynamoDBStreamReadPolicy:
+            TableName: !Ref GamesTable
+            StreamName: !GetAtt GamesTable.StreamArn
+      Events:
+        Stream:
+          Type: DynamoDB
+          Properties:
+            Stream: !GetAtt GamesTable.StreamArn
+            StartingPosition: LATEST
+            BatchSize: 10
+
+  # ============================================
+  # CloudWatch Alarms (Free Tier)
+  # ============================================
+  ApiErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub TrainTally-API-Errors-${Stage}
+      AlarmDescription: Alert when API error rate is high
+      MetricName: 5XXError
+      Namespace: AWS/ApiGateway
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 10
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: ApiName
+          Value: !Ref TrainTallyApi
+
+  LambdaThrottleAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub TrainTally-Lambda-Throttles-${Stage}
+      AlarmDescription: Alert when Lambda functions are throttled
+      MetricName: Throttles
+      Namespace: AWS/Lambda
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 5
+      ComparisonOperator: GreaterThanThreshold
+
+# ============================================
+# Outputs
+# ============================================
+Outputs:
+  ApiUrl:
+    Description: API Gateway endpoint URL
+    Value: !Sub https://${TrainTallyApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}
+    Export:
+      Name: !Sub TrainTally-ApiUrl-${Stage}
+
+  UserPoolId:
+    Description: Cognito User Pool ID
+    Value: !Ref UserPool
+    Export:
+      Name: !Sub TrainTally-UserPoolId-${Stage}
+
+  UserPoolClientId:
+    Description: Cognito User Pool Client ID
+    Value: !Ref UserPoolClient
+    Export:
+      Name: !Sub TrainTally-UserPoolClientId-${Stage}
+
+  Region:
+    Description: AWS Region
+    Value: !Ref AWS::Region
+    Export:
+      Name: !Sub TrainTally-Region-${Stage}
+
+  GamesTableName:
+    Description: DynamoDB Games Table
+    Value: !Ref GamesTable
+
+  GroupsTableName:
+    Description: DynamoDB Groups Table
+    Value: !Ref GroupsTable
+
+  LeaderboardsTableName:
+    Description: DynamoDB Leaderboards Table
+    Value: !Ref LeaderboardsTable
