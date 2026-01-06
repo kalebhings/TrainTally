@@ -25,10 +25,22 @@ A mobile score-tracking app for Ticket to Ride board games with cloud-synced lea
 | iOS App - Game History | ✅ Complete |
 | iOS App - Multi-version Support | ✅ Complete |
 | Local Persistence (SwiftData) | ✅ Complete |
-| AWS Backend (Cognito, Lambda, DynamoDB) | 🚧 Planned |
-| Cloud Leaderboards | 🚧 Planned |
-| Family Groups | 🚧 Planned |
+| **AWS Backend Infrastructure** | **✅ Deployed** |
+| iOS App - AWS Integration | 🚧 In Progress |
+| Cloud Leaderboards UI | 🚧 In Progress |
+| Family Groups UI | 🚧 In Progress |
 | Camera Auto-Scoring | 🔮 Future |
+
+### AWS Infrastructure ✅
+
+The serverless backend is now live on AWS with:
+- ✅ **Cognito User Pool** — Authentication and user management
+- ✅ **API Gateway** — RESTful API with JWT authorization
+- ✅ **Lambda Functions** — 8 serverless functions (Python 3.12)
+- ✅ **DynamoDB Tables** — Games, Groups, and Leaderboards
+- ✅ **CloudWatch** — Monitoring and alarms
+
+**Backend Documentation:** See [`backend/README.md`](backend/README.md) for API documentation and deployment guide.
 
 ## Features
 
@@ -40,10 +52,15 @@ A mobile score-tracking app for Ticket to Ride board games with cloud-synced lea
 - **Meeple scoring** — Germany expansion passenger scoring with majority bonuses
 - **Game history** — Persistent local storage of all completed games
 - **Player name memory** — Remembers frequently used player names
+- **AWS Serverless Backend** — Cloud infrastructure deployed and operational
 
-### Planned 🚧
-- AWS Cognito authentication (optional, for cloud features)
-- DynamoDB-backed leaderboards
+### In Progress 🚧
+- AWS SDK integration in iOS app
+- User authentication flow (optional sign-in)
+- Cloud game sync
+- Leaderboards view
+
+### Planned 📋
 - Private family/friend groups with invite codes
 - Global leaderboards with moderation
 - Cross-device sync
@@ -57,15 +74,20 @@ A mobile score-tracking app for Ticket to Ride board games with cloud-synced lea
 | SwiftUI | Declarative UI framework |
 | SwiftData | Local persistence |
 | MVVM | Architecture pattern |
+| AWS Amplify (soon) | AWS SDK for Swift |
 
-### Backend (Planned)
-| Technology | Purpose |
-|------------|---------|
-| AWS Cognito | User authentication |
-| AWS Lambda | Serverless functions (Python) |
-| AWS API Gateway | REST API |
-| AWS DynamoDB | NoSQL database |
-| AWS SAM | Infrastructure as Code |
+### Backend (Deployed ✅)
+| Technology | Purpose | Status |
+|------------|---------|--------|
+| AWS Cognito | User authentication | ✅ Live |
+| AWS Lambda | Serverless functions (Python 3.12) | ✅ Live |
+| AWS API Gateway | REST API with JWT auth | ✅ Live |
+| AWS DynamoDB | NoSQL database (Games, Groups, Leaderboards) | ✅ Live |
+| AWS SAM | Infrastructure as Code | ✅ Deployed |
+| AWS CloudWatch | Monitoring and logs | ✅ Active |
+
+**API Endpoints:** 8 endpoints for game submission, history, leaderboards, and groups  
+**Cost:** $0/month (within AWS free tier)
 
 ## Repository Structure
 
@@ -191,17 +213,28 @@ Backend infrastructure will use AWS SAM for deployment. Instructions will be add
 ### Planned Cloud Architecture
 
 ```
-┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│   iOS App    │────▶│ API Gateway  │────▶│   Lambda     │
-└──────────────┘     └──────────────┘     └──────────────┘
-       │                                         │
-       │              ┌──────────────┐           │
-       └─────────────▶│   Cognito    │           │
-                      └──────────────┘           │
-                                                 ▼
-                                          ┌──────────────┐
-                                          │  DynamoDB    │
-                                          └──────────────┘
+┌──────────────┐     HTTPS/JWT    ┌──────────────┐     Invoke    ┌──────────────┐
+│   iOS App    │─────────────────▶│ API Gateway  │──────────────▶│   Lambda     │
+│  (SwiftUI)   │                   │  (REST API)  │               │ (Python 3.12)│
+└──────────────┘                   └──────────────┘               └──────┬───────┘
+       │                                                                  │
+       │ Authenticate                                                     │
+       │                                                                  │
+       ▼                                                                  ▼
+┌──────────────┐                                                  ┌──────────────┐
+│   Cognito    │                                                  │  DynamoDB    │
+│  User Pool   │                                                  │   Tables     │
+│              │                                                  │ • Games      │
+│ • Optional   │                                                  │ • Groups     │
+│ • JWT Auth   │                                                  │ • Leaderboards│
+└──────────────┘                                                  └──────────────┘
+                                                                         │
+                                                                         │
+                                                                         ▼
+                                                                  ┌──────────────┐
+                                                                  │ CloudWatch   │
+                                                                  │ Logs/Metrics │
+                                                                  └──────────────┘
 ```
 
 ## Scoring Logic
@@ -231,7 +264,6 @@ Points are awarded based on route length as defined in each game version's confi
 - [ ] User authentication (optional)
 - [ ] Cloud leaderboards
 - [ ] Family group sharing
-- [ ] iPad layout optimization
 - [ ] Android port (Kotlin)
 - [ ] Camera-based auto-scoring
 
