@@ -1,0 +1,18 @@
+{
+  "id": "usa_base",
+  "displayName": "USA (Base Game)",
+  "minPlayers": 2,
+  "maxPlayers": 5,
+  "trainCarsPerPlayer": 45,
+  "stationsPerPlayer": null,
+  "playerColors": ["red", "blue", "green", "yellow", "black"],
+  "routeScoring": "standard_1-6",
+  "features": {
+    "hasStations": false,
+    "hasMeeples": false,
+    "hasFerries": false,
+    "hasShips": false
+  },
+  "bonuses": ["longest_route"],
+  "meepleConfig": null
+}

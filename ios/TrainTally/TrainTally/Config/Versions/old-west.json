@@ -1,0 +1,18 @@
+{
+  "id": "old_west",
+  "displayName": "Old West",
+  "minPlayers": 2,
+  "maxPlayers": 5,
+  "trainCarsPerPlayer": 40,
+  "stationsPerPlayer": null,
+  "playerColors": ["red", "blue", "green", "yellow", "black", "white"],
+  "routeScoring": "standard_1-7",
+  "features": {
+    "hasStations": false,
+    "hasMeeples": false,
+    "hasFerries": false,
+    "hasShips": false
+  },
+  "bonuses": ["globetrotter"],
+  "meepleConfig": null
+}

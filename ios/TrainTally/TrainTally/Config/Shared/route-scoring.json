@@ -1,0 +1,39 @@
+{
+  "scoringTables": {
+    "standard_1-6": [
+      {"length": 1, "points": 1},
+      {"length": 2, "points": 2},
+      {"length": 3, "points": 4},
+      {"length": 4, "points": 7},
+      {"length": 5, "points": 10},
+      {"length": 6, "points": 15}
+    ],
+    "standard_1-7": [
+      {"length": 1, "points": 1},
+      {"length": 2, "points": 2},
+      {"length": 3, "points": 4},
+      {"length": 4, "points": 7},
+      {"length": 5, "points": 10},
+      {"length": 6, "points": 15},
+      {"length": 7, "points": 18}
+    ],
+    "standard_1-8": [
+      {"length": 1, "points": 1},
+      {"length": 2, "points": 2},
+      {"length": 3, "points": 4},
+      {"length": 4, "points": 7},
+      {"length": 5, "points": 10},
+      {"length": 6, "points": 15},
+      {"length": 7, "points": 18},
+      {"length": 8, "points": 21}
+    ],
+    "different_1-8_with_no_5_7": [
+        {"length": 1, "points": 1},
+        {"length": 2, "points": 2},
+        {"length": 3, "points": 4},
+        {"length": 4, "points": 7},
+        {"length": 6, "points": 15},
+        {"length": 8, "points": 21}
+    ]
+  }
+}

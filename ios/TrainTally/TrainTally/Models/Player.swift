@@ -80,6 +80,10 @@ struct Player: Identifiable, Codable, Hashable {
     // Bonuses earned (bonus id -> count or bool as int)
     var bonuses: [String: Int]
     
+    // Complex bonus data (for bonuses that need more than a simple count)
+    // e.g., regions for Italy, stored as JSON strings
+    var bonusData: [String: String]
+    
     // For Europe - stations
     var unusedStations: Int
     
@@ -93,6 +97,7 @@ struct Player: Identifiable, Codable, Hashable {
         self.routesClaimed = [:]
         self.destinationTickets = []
         self.bonuses = [:]
+        self.bonusData = [:]
         self.unusedStations = 0
         self.meeplesCollected = [:]
     }

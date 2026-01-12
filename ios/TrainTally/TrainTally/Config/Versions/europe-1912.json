@@ -1,0 +1,18 @@
+{
+  "id": "europe_1912",
+  "displayName": "Europe (1912 Expansion)",
+  "minPlayers": 2,
+  "maxPlayers": 5,
+  "trainCarsPerPlayer": 45,
+  "stationsPerPlayer": null,
+  "playerColors": ["red", "blue", "green", "yellow", "black"],
+  "routeScoring": "different_1-8_with_no_5_7",
+  "features": {
+    "hasStations": false,
+    "hasMeeples": false,
+    "hasFerries": false,
+    "hasShips": false
+  },
+  "bonuses": ["longest_route", "unused_stations"],
+  "meepleConfig": null
+}

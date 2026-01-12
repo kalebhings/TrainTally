@@ -41,7 +41,8 @@ struct ScoringView: View {
                         ForEach(Array(session.players.enumerated()), id: \.element.id) { index, player in
                             PlayerScoringView(
                                 player: binding(for: index),
-                                gameVersion: version
+                                gameVersion: version,
+                                playerCount: session.players.count
                             )
                             .tag(index)
                         }
@@ -152,6 +153,7 @@ struct PlayerTabButton: View {
 struct PlayerScoringView: View {
     @Binding var player: Player
     let gameVersion: GameVersion
+    let playerCount: Int
     
     var body: some View {
         ScrollView {
@@ -166,7 +168,7 @@ struct PlayerScoringView: View {
                 DestinationTicketsSection(player: $player)
                 
                 // Bonuses
-                BonusScoringSection(player: $player, gameVersion: gameVersion)
+                BonusScoringSection(player: $player, gameVersion: gameVersion, playerCount: playerCount)
                 
                 // Score Summary
                 ScoreSummaryView(player: player, gameVersion: gameVersion)

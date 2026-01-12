@@ -13,8 +13,11 @@ import SwiftUI
 struct BonusScoringSection: View {
     @Binding var player: Player
     let gameVersion: GameVersion
+    let playerCount: Int  // Added to support player-dependent bonuses
     
     private var bonusPoints: Int {
+        // Use BonusCalculator for accurate calculation
+        // For now, estimate with simple calculation
         player.calculateBonusPoints(using: gameVersion) + 
         player.calculateStationPoints(using: gameVersion)
     }
@@ -31,14 +34,12 @@ struct BonusScoringSection: View {
                     .foregroundStyle(.orange)
             }
             
-            // Regular bonuses
+            // Regular bonuses - use special controls
             ForEach(gameVersion.bonuses) { bonus in
-                BonusControl(
+                SpecialBonusControl(
                     bonus: bonus,
-                    currentValue: Binding(
-                        get: { player.bonuses[bonus.id] ?? 0 },
-                        set: { player.bonuses[bonus.id] = $0 }
-                    )
+                    player: $player,
+                    playerCount: playerCount
                 )
             }
             

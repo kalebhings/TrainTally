@@ -1,0 +1,18 @@
+{
+  "id": "italy",
+  "displayName": "Italy",
+  "minPlayers": 2,
+  "maxPlayers": 5,
+  "trainCarsPerPlayer": 45,
+  "stationsPerPlayer": null,
+  "playerColors": ["red", "blue", "green", "yellow", "black", "purple"],
+  "routeScoring": "standard_1-7",
+  "features": {
+    "hasStations": false,
+    "hasMeeples": true,
+    "hasFerries": false,
+    "hasShips": false
+  },
+  "bonuses": ["connected_regions"],
+  "meepleConfig": null
+}

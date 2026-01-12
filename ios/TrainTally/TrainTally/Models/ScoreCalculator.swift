@@ -17,21 +17,24 @@ struct ScoreCalculator {
     
     /// Calculate final scores for all players (only call when game is complete)
     func calculateFinalScores() -> [PlayerFinalScore] {
+        // Initialize bonus calculator
+        let bonusCalculator = BonusCalculator(gameVersion: gameVersion, players: players)
+        
         // Calculate meeple points once for all players
         let meepleResults = calculateAllMeeplePointsWithDetails()
+        
+        // Get detailed bonus breakdowns
+        let bonusDetailsMap = bonusCalculator.calculateDetailedBonuses()
         
         // Calculate each player's final score
         return players.map { player in
             let routePoints = player.calculateRoutePoints(using: gameVersion)
             let ticketPoints = player.calculateTicketPoints()
-            let bonusPoints = player.calculateBonusPoints(using: gameVersion)
+            let bonusPoints = bonusCalculator.calculateBonusPoints(for: player)
             let stationPoints = player.calculateStationPoints(using: gameVersion)
             let meepleData = meepleResults[player.id] ?? (points: 0, details: [])
             
             let total = routePoints + ticketPoints + bonusPoints + stationPoints + meepleData.points
-            
-            // Get bonus details
-            let bonusDetails = getBonusDetails(for: player)
             
             return PlayerFinalScore(
                 player: player,
@@ -41,27 +44,19 @@ struct ScoreCalculator {
                 stationPoints: stationPoints,
                 meeplePoints: meepleData.points,
                 totalScore: total,
-                bonusDetails: bonusDetails,
+                bonusDetails: bonusDetailsMap[player.id] ?? [],
                 meepleDetails: meepleData.details
             )
         }
     }
     
-    // MARK: - Bonus Details
+    // MARK: - Bonus Details (Deprecated - use BonusCalculator)
     
     /// Get detailed breakdown of which bonuses a player earned
+    /// Note: This is kept for backward compatibility but now uses BonusCalculator
     private func getBonusDetails(for player: Player) -> [BonusDetail] {
-        var details: [BonusDetail] = []
-        
-        for bonus in gameVersion.bonuses {
-            let count = player.bonuses[bonus.id] ?? 0
-            if count > 0 {
-                let points = bonus.isPerItem ? (bonus.points * count) : bonus.points
-                details.append(BonusDetail(bonusName: bonus.displayName, points: points))
-            }
-        }
-        
-        return details
+        let bonusCalculator = BonusCalculator(gameVersion: gameVersion, players: players)
+        return bonusCalculator.calculateDetailedBonuses()[player.id] ?? []
     }
     
     /// Get sorted player scores (highest to lowest)
@@ -195,12 +190,6 @@ struct PlayerFinalScore: Identifiable {
             "Total": totalScore
         ]
     }
-}
-
-/// Details about a specific bonus earned
-struct BonusDetail {
-    let bonusName: String
-    let points: Int
 }
 
 /// Details about meeple scoring for a specific color

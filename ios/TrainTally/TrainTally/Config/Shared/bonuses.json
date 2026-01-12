@@ -1,0 +1,80 @@
+{
+  "bonuses": {
+    "longest_route": {
+      "id": "longest_route",
+      "displayName": "Longest Route",
+      "points": 10,
+      "description": "Longest continuous path of trains",
+      "isExclusive": true,
+      "isPerItem": false,
+      "maxCount": null,
+      "scoringType": "simple"
+    },
+    "globetrotter": {
+      "id": "globetrotter",
+      "displayName": "Globetrotter",
+      "points": 15,
+      "description": "Most completed destination tickets",
+      "isExclusive": true,
+      "isPerItem": false,
+      "maxCount": null,
+      "scoringType": "simple"
+    },
+    "unused_stations": {
+      "id": "unused_stations",
+      "displayName": "Unused Stations",
+      "points": 4,
+      "description": "4 points per unused train station",
+      "isExclusive": true,
+      "isPerItem": true,
+      "maxCount": 3,
+      "scoringType": "simple"
+    },
+    "bullet_train": {
+      "id": "bullet_train",
+      "displayName": "Bullet Train Participation",
+      "points": 0,
+      "description": "Bullet train participation ranking and player count",
+      "isExclusive": false,
+      "isPerItem": false,
+      "maxCount": null,
+      "scoringType": "playerRanked",
+      "scoringData": {
+        "rankedPoints": {
+          "2": [10, -10],
+          "3": [15, 5, -10],
+          "4": [20, 10, 0, -10],
+          "5": [25, 15, 5, -5, -10]
+        },
+        "noParticipationPenalty": -20
+      }
+    },
+    "connected_regions": {
+      "id": "connected_regions",
+      "displayName": "Connected Regions",
+      "points": 0,
+      "description": "Number of Consecutively Connected Regions",
+      "isExclusive": false,
+      "isPerItem": true,
+      "maxCount": null,
+      "scoringType": "multipleRegions",
+      "scoringData": {
+        "regionPoints": {
+          "5": 1,
+          "6": 2,
+          "7": 4,
+          "8": 7,
+          "9": 11,
+          "10": 16,
+          "11": 22,
+          "12": 29,
+          "13": 37,
+          "14": 46,
+          "15": 56,
+          "16": 56,
+          "17": 56
+        }
+      }
+    }
+  }
+}

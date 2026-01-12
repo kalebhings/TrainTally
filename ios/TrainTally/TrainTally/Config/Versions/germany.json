@@ -1,0 +1,22 @@
+{
+  "id": "germany",
+  "displayName": "Germany",
+  "minPlayers": 2,
+  "maxPlayers": 5,
+  "trainCarsPerPlayer": 45,
+  "stationsPerPlayer": null,
+  "playerColors": ["black", "yellow", "red", "purple", "white"],
+  "routeScoring": "standard_1-7",
+  "features": {
+    "hasStations": false,
+    "hasMeeples": true,
+    "hasFerries": false,
+    "hasShips": false
+  },
+  "bonuses": ["longest_route", "globetrotter"],
+  "meepleConfig": {
+    "colors": ["red", "black", "green", "yellow", "blue", "white"],
+    "majorityPoints": 20,
+    "secondPlacePoints": 10
+  }
+}
