@@ -1,0 +1,71 @@
+{
+  "versions": [
+    {
+      "id": "europe_base",
+      "displayName": "Europe (Base Game)",
+      "minPlayers": 2,
+      "maxPlayers": 5,
+      "configFile": "Versions/europe-base.json"
+    },
+    {
+      "id": "europe_1912",
+      "displayName": "Europe (1912 Expansion)",
+      "minPlayers": 2,
+      "maxPlayers": 5,
+      "configFile": "Versions/europe-1912.json"
+    },
+    {
+      "id": "france",
+      "displayName": "France",
+      "minPlayers": 2,
+      "maxPlayers": 5,
+      "configFile": "Versions/france.json"
+    },
+    {
+      "id": "germany",
+      "displayName": "Germany",
+      "minPlayers": 2,
+      "maxPlayers": 5,
+      "configFile": "Versions/germany.json"
+    },
+    {
+      "id": "italy",
+      "displayName": "Italy",
+      "minPlayers": 2,
+      "maxPlayers": 5,
+      "configFile": "Versions/italy.json"
+    },
+    {
+      "id": "japan",
+      "displayName": "Japan",
+      "minPlayers": 2,
+      "maxPlayers": 5,
+      "configFile": "Versions/japan.json"
+    },
+    {
+      "id": "old_west",
+      "displayName": "Old West",
+      "minPlayers": 2,
+      "maxPlayers": 5,
+      "configFile": "Versions/old-west.json"
+    },
+    {
+      "id": "usa_base",
+      "displayName": "USA (Base Game)",
+      "minPlayers": 2,
+      "maxPlayers": 5,
+      "configFile": "Versions/usa-base.json"
+    },
+    {
+      "id": "usa_1910",
+      "displayName": "USA (1910 Expansion)",
+      "minPlayers": 2,
+      "maxPlayers": 5,
+      "configFile": "Versions/usa-1910.json"
+    },
+  ],
+  "metadata": {
+    "version": "1.0",
+    "lastUpdated": "2026-01-12"
+  }
+}
