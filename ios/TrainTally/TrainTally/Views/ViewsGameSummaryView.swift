@@ -12,8 +12,15 @@ import SwiftUI
 
 struct GameSummaryView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    @State private var syncManager = CloudSyncManager.shared
+    
     let session: GameSession
     let onFinish: () -> Void
+    
+    @State private var isSaving = false
+    @State private var showingSyncError = false
+    @State private var syncErrorMessage = ""
     
     private var sortedScores: [PlayerFinalScore] {
         session.getSortedScores() ?? []
@@ -32,10 +39,23 @@ struct GameSummaryView: View {
                         // Ranked player list
                         PlayerRankingsList(scores: sortedScores)
                         
+                        // Cloud sync status
+                        if syncManager.isCloudSyncEnabled {
+                            CloudSyncStatusView(
+                                isSubmitted: session.isSubmittedToCloud,
+                                syncDate: session.cloudSyncDate
+                            )
+                        }
+                        
                         // Action button
-                        SaveAndExitButton(action: {
-                            saveAndFinish()
-                        })
+                        SaveAndExitButton(
+                            action: {
+                                Task {
+                                    await saveAndFinish()
+                                }
+                            },
+                            isLoading: isSaving
+                        )
                     }
                 }
                 .navigationTitle("Game Complete")
@@ -45,14 +65,35 @@ struct GameSummaryView: View {
                         Button("Back") { dismiss() }
                     }
                 }
+                .alert("Sync Error", isPresented: $showingSyncError) {
+                    Button("OK") { }
+                } message: {
+                    Text(syncErrorMessage)
+                }
             }
         }
     }
     
-    private func saveAndFinish() {
+    private func saveAndFinish() async {
+        isSaving = true
+        
         // Save player names for future games
         let playerNames = session.players.map { $0.name }
         PlayerNameManager.shared.saveNames(playerNames)
+        
+        // Submit the game (handles both local save and cloud sync)
+        do {
+            try await syncManager.submitGame(session, context: modelContext)
+        } catch {
+            // Game was saved locally, but cloud sync failed
+            // This is okay - we'll show the error but still complete the flow
+            syncErrorMessage = "Game saved locally, but cloud sync failed: \(error.localizedDescription)"
+            showingSyncError = true
+        }
+        
+        isSaving = false
+        
+        // Call completion handler
         onFinish()
     }
 }
@@ -336,17 +377,57 @@ struct BreakdownRow: View {
 
 struct SaveAndExitButton: View {
     let action: () -> Void
+    let isLoading: Bool
     
     var body: some View {
         Button(action: action) {
-            Text("Save & Exit")
-                .fontWeight(.semibold)
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(.blue)
-                .foregroundStyle(.white)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+            HStack {
+                if isLoading {
+                    ProgressView()
+                        .tint(.white)
+                }
+                Text(isLoading ? "Saving..." : "Save & Exit")
+                    .fontWeight(.semibold)
+            }
+            .frame(maxWidth: .infinity)
+            .padding()
+            .background(isLoading ? Color.gray : Color.blue)
+            .foregroundStyle(.white)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
+        .disabled(isLoading)
         .padding(.horizontal)
     }
 }
+// MARK: - Cloud Sync Status View
+
+struct CloudSyncStatusView: View {
+    let isSubmitted: Bool
+    let syncDate: Date?
+    
+    var body: some View {
+        HStack {
+            Image(systemName: isSubmitted ? "checkmark.icloud.fill" : "icloud.slash")
+                .foregroundStyle(isSubmitted ? .green : .orange)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(isSubmitted ? "Synced to Cloud" : "Local Only")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                
+                if let date = syncDate {
+                    Text("Synced \(date, style: .relative)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            
+            Spacer()
+        }
+        .padding()
+        .background(Color.gray.opacity(0.1))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .padding(.horizontal)
+    }
+}
+
