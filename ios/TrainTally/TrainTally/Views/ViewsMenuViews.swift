@@ -20,6 +20,7 @@ struct MainMenuView: View {
     ) private var completedGames: [GameSession]
     
     @State private var showingNewGame = false
+    @State private var showingSettings = false
     
     var body: some View {
         NavigationStack {
@@ -76,8 +77,20 @@ struct MainMenuView: View {
                 }
             }
             .padding()
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        showingSettings = true
+                    } label: {
+                        Image(systemName: "gear")
+                    }
+                }
+            }
             .sheet(isPresented: $showingNewGame) {
                 GameSetupView()
+            }
+            .sheet(isPresented: $showingSettings) {
+                SettingsView()
             }
         }
     }
@@ -145,15 +158,6 @@ struct MenuButtonLabel: View {
     }
 }
 
-// MARK: - Leaderboard (Placeholder)
+// MARK: - Leaderboard View (Moved to separate file)
+// See LeaderboardViews.swift for implementation
 
-struct LeaderboardView: View {
-    var body: some View {
-        ContentUnavailableView(
-            "Coming Soon",
-            systemImage: "trophy",
-            description: Text("Leaderboards will be available soon")
-        )
-        .navigationTitle("Leaderboard")
-    }
-}
