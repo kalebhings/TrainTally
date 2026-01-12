@@ -7,9 +7,35 @@
 
 import SwiftUI
 import SwiftData
+import Amplify
+import AWSCognitoAuthPlugin
+import AWSAPIPlugin
 
 @main
 struct TrainTallyApp: App {
+    
+    init() {
+        configureAmplify()
+    }
+    
+    private func configureAmplify() {
+        // Only configure Amplify if AWS is properly set up
+        guard AWSConfiguration.isConfigured else {
+            print("⚠️ AWS not configured. Cloud sync will be disabled.")
+            print("Update AWSConfiguration.swift and amplifyconfiguration.json to enable cloud features.")
+            return
+        }
+        
+        do {
+            try Amplify.add(plugin: AWSCognitoAuthPlugin())
+            try Amplify.add(plugin: AWSAPIPlugin())
+            try Amplify.configure()
+            print("✅ Amplify configured successfully")
+        } catch {
+            print("❌ Failed to configure Amplify: \(error)")
+        }
+    }
+    
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             GameSession.self,
@@ -28,6 +54,7 @@ struct TrainTallyApp: App {
             ContentView()
                 .onAppear {
                     cleanupIncompleteGames()
+                    checkAuthStatus()
                 }
         }
         .modelContainer(sharedModelContainer)
@@ -58,11 +85,22 @@ struct TrainTallyApp: App {
                 try context.save()
                 
                 if !incompleteSessions.isEmpty {
-                    print("Cleaned up \(incompleteSessions.count) incomplete game(s)")
+                    print("🧹 Cleaned up \(incompleteSessions.count) incomplete game(s)")
                 }
             } catch {
-                print("Error cleaning up incomplete games: \(error)")
+                print("❌ Error cleaning up incomplete games: \(error)")
             }
         }
     }
+    
+    /// Check authentication status on app launch
+    @MainActor
+    private func checkAuthStatus() {
+        guard AWSConfiguration.isConfigured else { return }
+        
+        Task {
+            AuthenticationManager.shared.checkAuthStatus()
+        }
+    }
 }
+
