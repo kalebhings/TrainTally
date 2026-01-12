@@ -25,22 +25,35 @@ A mobile score-tracking app for Ticket to Ride board games with cloud-synced lea
 | iOS App - Game History | ✅ Complete |
 | iOS App - Multi-version Support | ✅ Complete |
 | Local Persistence (SwiftData) | ✅ Complete |
-| **AWS Backend Infrastructure** | **✅ Deployed** |
-| iOS App - AWS Integration | 🚧 In Progress |
-| Cloud Leaderboards UI | 🚧 In Progress |
-| Family Groups UI | 🚧 In Progress |
+| AWS Backend Infrastructure | ✅ Deployed |
+| iOS App - AWS Integration | ✅ Complete |
+| Cloud Leaderboards UI | ✅ Complete |
+| iOS App - Authentication Flow | ✅ Complete |
+| iOS App - Cloud Sync | ✅ Complete |
+| Family Groups Backend | ✅ Deployed |
+| Family Groups iOS UI | 🚧 In Progress |
+| Game Config Refactor | 🔧 Planned Refactor |
 | Camera Auto-Scoring | 🔮 Future |
+| Destination Ticket Database | 🔮 Future |
 
 ### AWS Infrastructure ✅
 
-The serverless backend is now live on AWS with:
-- ✅ **Cognito User Pool** — Authentication and user management
-- ✅ **API Gateway** — RESTful API with JWT authorization
-- ✅ **Lambda Functions** — 8 serverless functions (Python 3.12)
-- ✅ **DynamoDB Tables** — Games, Groups, and Leaderboards
-- ✅ **CloudWatch** — Monitoring and alarms
+- **Cognito User Pool** — Authentication and user management
+- **API Gateway** — RESTful API with JWT authorization
+- **Lambda Functions** — 8 serverless functions (Python 3.12)
+- **DynamoDB Tables** — Games, Groups, and Leaderboards
+- **CloudWatch** — Monitoring and alarms
+- **iOS SDK Integration** — Full authentication and sync implementation
 
 **Backend Documentation:** See [`backend/README.md`](backend/README.md) for API documentation and deployment guide.
+
+### iOS App - Cloud Features
+
+- **User Authentication** — Sign up, sign in, password reset via Cognito
+- **Cloud Sync** — Automatic and manual game syncing to AWS
+- **Leaderboards** — View global and filtered leaderboards by game version
+- **Settings UI** — Manage cloud sync, view account status, and local games
+- **Sync Status Indicators** — Visual feedback for synced vs. local-only games
 
 ## Features
 
@@ -52,18 +65,23 @@ The serverless backend is now live on AWS with:
 - **Meeple scoring** — Germany expansion passenger scoring with majority bonuses
 - **Game history** — Persistent local storage of all completed games
 - **Player name memory** — Remembers frequently used player names
-- **AWS Serverless Backend** — Cloud infrastructure deployed and operational
+- **AWS Backend** — Serverless infrastructure deployed and operational
+- **Cloud Sync** — Optional cloud syncing with automatic retry for failed submissions
+- **Authentication** — Cognito-based user accounts (optional, works offline-first)
+- **Leaderboards** — Global leaderboards with filtering by game version
 
 ### In Progress 🚧
-- AWS SDK integration in iOS app
-- User authentication flow (optional sign-in)
-- Cloud game sync
-- Leaderboards view
+- **Family/Friend Groups** — Private groups with invite codes (backend ready, iOS UI pending)
 
 ### Planned 📋
-- Private family/friend groups with invite codes
-- Global leaderboards with moderation
-- Cross-device sync
+- **Game Config Refactor** — Split monolithic `game-versions.json` into multiple files for better maintainability
+- **Additional Game Versions** — Expand support for more Ticket to Ride expansions
+- **Camera Auto-Scoring** — Use device camera to automatically score routes
+- **Destination Ticket Database** — Create comprehensive database of destination tickets for all versions
+  - May require image scanning/OCR + LLM extraction to build dataset
+  - Would enable smart destination ticket selection during route completion
+- **Cross-device sync improvements** — Real-time sync across multiple devices
+- **Android port** — Kotlin/Compose implementation
 
 ## Tech Stack
 
@@ -260,12 +278,16 @@ Points are awarded based on route length as defined in each game version's confi
 - [x] Multiple game version support
 - [x] Local game history
 - [x] Player name persistence
-- [ ] AWS backend infrastructure
-- [ ] User authentication (optional)
-- [ ] Cloud leaderboards
-- [ ] Family group sharing
-- [ ] Android port (Kotlin)
+- [x] AWS backend infrastructure
+- [x] User authentication (optional)
+- [x] Cloud leaderboards
+- [x] Cloud game sync with automatic retry
+- [ ] Family group sharing UI (backend ready)
+- [ ] Game config refactoring (split JSON files)
+- [ ] Additional game version support
+- [ ] Destination ticket database creation
 - [ ] Camera-based auto-scoring
+- [ ] Android port (Kotlin/Compose)
 
 ## Contributing
 
