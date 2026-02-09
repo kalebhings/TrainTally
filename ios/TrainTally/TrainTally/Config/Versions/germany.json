@@ -13,7 +13,7 @@
     "hasFerries": false,
     "hasShips": false
   },
-  "bonuses": ["longest_route", "globetrotter"],
+  "bonuses": ["globetrotter"],
   "meepleConfig": {
     "colors": ["red", "black", "green", "yellow", "blue", "white"],
     "majorityPoints": 20,
