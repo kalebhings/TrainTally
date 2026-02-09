@@ -193,8 +193,8 @@ struct MeepleColorCounter: View {
         switch color.lowercased() {
         case "yellow": return .yellow
         case "blue": return .blue
-        case "pink": return .pink
-        case "orange": return .orange
+        case "red": return .red
+        case "green": return .green
         case "white": return .white
         case "black": return .black
         default: return .gray
