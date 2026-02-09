@@ -113,6 +113,7 @@ struct AddTicketSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var points: String
     @Binding var isCompleted: Bool
+    @FocusState private var isPointsFocused: Bool
     let onAdd: () -> Void
     
     private var canAdd: Bool {
@@ -124,11 +125,17 @@ struct AddTicketSheet: View {
             Form {
                 TextField("Point Value", text: $points)
                     .keyboardType(.numberPad)
+                    .focused($isPointsFocused)
                 
                 Toggle("Completed", isOn: $isCompleted)
             }
             .navigationTitle("Add Ticket")
             .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                DispatchQueue.main.async {
+                    isPointsFocused = true
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
